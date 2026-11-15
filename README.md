@@ -1,4 +1,3 @@
-
 # 🌸 ME-DATOS - Parcial: Torre de Hanoi (Edición Sakura)
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue?logo=python&logoColor=white)
@@ -35,121 +34,228 @@ python main.py
 
 ---
 
-## 🧠 ¿En qué consiste el código y cómo funciona? (Explicación por Secciones)
+## 🧠 Explicación Detallada por Secciones y Cómo Modificar Cada Apartado
 
-El código está organizado en **11 bloques principales** identificados con comentarios dentro del script:
+El código está dividido en **11 secciones comentadas**. A continuación se explica qué hace cada una y **cómo modificarla en vivo si lo solicitan durante la evaluación** sin que el código colapse:
+
+---
 
 ### 1. Configuración Inicial y Paleta de Colores (`# 1. CONFIGURACIÓN INICIAL...`)
-Prepara la ventana del juego y define todos los colores antes de renderizar la escena.
-* **`app = Ursina()`:** Inicia el motor gráfico y configura el título de la ventana (`"Torre de Hanoi - Edición Sakura"`), ocultando los contadores de depuración (FPS, entidades y colisionadores).
-* **Cámara 2D Ortográfica (`camera.orthographic = True`):** Desactiva la deformación de perspectiva 3D para trabajar en un plano 2D exacto con un campo de visión amplio (`camera.fov = 11.2`).
-* **Función `c_rgb(r, g, b, a)`:** Convierte valores de color RGB estándar (`0` a `255`) a la escala decimal (`0.0` a `1.0`) que utiliza Ursina internamente.
-* **Constantes de Paleta:** Define todas las variables de color para el paisaje, botones, madera y la lista `COLORES_DISCOS` con los 8 colores distintos para los discos.
+**¿En qué consiste?**
+* Inicia el motor con `app = Ursina()`, asigna el título de la ventana y oculta los contadores técnicos (`fps_counter`, `entity_counter`).
+* Activa la **Cámara 2D Ortográfica** (`camera.orthographic = True`, `camera.fov = 11.2`) para trabajar en un plano 2D exacto sin deformación de perspectiva.
+* Define `c_rgb(r, g, b, a)` para convertir colores RGB tradicionales (`0-255`) al formato decimal de Ursina (`0.0-1.0`), y declara toda la paleta de colores del paisaje, botones y la lista `COLORES_DISCOS`.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar el título de la ventana o activar los FPS:**
+  ```python
+  window.title = "Torre de Hanoi - Mi Versión"
+  window.fps_counter.enabled = True  # Cambiar False a True si piden ver los FPS
+  ```
+* **Hacer zoom in / zoom out a todo el escenario de juego:**
+  Modifica `camera.fov = 11.2`. Si pones un número mayor (ej. `14.0`) la cámara se aleja; si pones uno menor (ej. `9.0`) se acerca.
+* **Cambiar los colores de los discos:**
+  Edita los valores RGB dentro de la lista `COLORES_DISCOS`:
+  ```python
+  COLORES_DISCOS = [
+      c_rgb(255, 0, 0),    # Disco 1 (Rojo puro)
+      c_rgb(0, 255, 0),    # Disco 2 (Verde puro)
+      # ... puedes cambiar cualquiera o agregar más líneas c_rgb(R, G, B)
+  ]
+  ```
+* **⚠️ Qué NO tocar para evitar colapsos:** No borres la función `c_rgb()`, ya que todas las variables de color del script dependen de ella.
+
+---
 
 ### 2. Variables Globales y Progreso de Estrellas (`# 2. VARIABLES GLOBALES...`)
-Actúa como la memoria central del juego y define la **Estructura de Datos** principal.
-* **`config_discos`:** Diccionario que establece cuántos discos tiene cada uno de los 5 niveles en las 3 dificultades (`"Fácil": [3, 3, 4, 4, 5]`, `"Medio": [4, 5, 5, 6, 6]`, `"Difícil": [5, 6, 7, 7, 8]`).
-* **`estrellas_progreso`:** Diccionario que almacena las estrellas ganadas (de 0 a 3) en cada uno de los 15 niveles (máximo **45 estrellas**).
-* **`torres = [[], [], []]` (Estructura de Datos de Pilas / LIFO):** Representa las 3 torres (A, B y C) mediante 3 listas que operan bajo el principio **LIFO (*Last In, First Out* — Último en entrar, primero en salir)**. Los discos solo pueden extraerse o insertarse desde el tope de cada lista.
-* **Variables de control:** Guardan el disco sujetado actualmente por el mouse (`disco_arrastrado`), su torre de origen (`torre_origen_arrastre`), el contador de `movimientos` y el `tiempo` del cronómetro.
+**¿En qué consiste?**
+* Es la memoria del programa y donde se define la **Estructura de Datos principal**: `torres = [[], [], []]`, que representa las 3 torres como **Pilas (Stacks LIFO)**.
+* Define `config_discos` (cuántos discos tiene cada nivel por dificultad), `estrellas_progreso` (estrellas ganadas por nivel) y las medidas físicas como `posiciones_x = [-4.3, 0.0, 4.3]` y `ALTO_DISCO = 0.44`.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar la cantidad de discos de un nivel específico:**
+  Busca el diccionario `config_discos` y cambia los números de la lista (cada posición es un nivel del 1 al 5):
+  ```python
+  config_discos = {
+      "Fácil":   [2, 3, 4, 5, 6], # Ejemplo: hacer que el Nivel 1 de Fácil empiece con 2 discos
+      "Medio":   [4, 5, 5, 6, 6],
+      "Difícil": [5, 6, 7, 7, 8]
+  }
+  ```
+* **Empezar el juego con todas las estrellas desbloqueadas (para pruebas):**
+  Cambia los `0` por `3` en `estrellas_progreso`:
+  ```python
+  estrellas_progreso = {
+      "Fácil":   [3, 3, 3, 3, 3],
+      "Medio":   [3, 3, 3, 3, 3],
+      "Difícil": [3, 3, 3, 3, 3]
+  }
+  ```
+* **Separar o juntar más las 3 torres:**
+  Cambia `posiciones_x = [-4.3, 0.0, 4.3]` por `[-5.0, 0.0, 5.0]` (más separadas) o `[-3.5, 0.0, 3.5]` (más juntas).
+* **⚠️ Qué NO tocar para evitar colapsos:** `config_discos` y `estrellas_progreso` deben tener **siempre 5 elementos por lista**. Si borras o agregas un elemento en una sola lista sin actualizar la otra, provocará un `IndexError`. Si pones más de `8` discos en un nivel, baja `ALTO_DISCO = 0.30` para que no se salgan del poste.
+
+---
 
 ### 3. Componentes Gráficos Vectoriales (`# 3. COMPONENTES GRÁFICOS...`)
-Contiene las funciones que construyen las figuras geométricas de la interfaz sin usar imágenes externas:
-* **`_crear_malla_estrella()`:** Usa funciones trigonométricas (`math.cos` y `math.sin`) para calcular 10 vértices alternando el radio exterior e interior, generando la malla poligonal (`Mesh`) de una estrella de 5 puntas.
-* **`crear_capsula()`:** Une un rectángulo central (`quad`) con dos círculos (`circle`) en los extremos para formar figuras con bordes redondeados (usadas en la base de madera, botones y discos).
-* **`crear_panel_redondeado()` y `crear_boton_pildora_menu()`:** Generan los paneles oscuros translúcidos y los botones interactivos con sombra, brillo superior y detección de clic (`on_click`).
+**¿En qué consiste?**
+* Son las funciones constructoras que dibujan el arte sin imágenes: `_crear_malla_estrella()` genera el modelo geométrico de las estrellas con trigonometría (`sin`/`cos`), `crear_capsula()` une un rectángulo y dos círculos para hacer bordes curvos, `crear_panel_redondeado()` arma las cajas de la interfaz y `crear_boton_pildora_menu()` crea los botones con sombra e interacción.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Hacer las estrellas más puntiagudas o más rellenas:**
+  En `def _crear_malla_estrella(R=0.5, r=0.2):`, `R` es la punta exterior y `r` el centro interior. Si cambias `r=0.12`, las estrellas se verán mucho más afiladas; si pones `r=0.35`, se verán más gorditas.
+* **Hacer los paneles más cuadrados o más redondos:**
+  En `def crear_panel_redondeado(..., radio=0.045):`, disminuye `radio=0.015` para esquinas casi cuadradas.
+* **⚠️ Qué NO tocar para evitar colapsos:** En `_crear_malla_estrella()`, no modifiques el `range(10)` ni la lista `tris`, ya que la malla triangular (`Mesh`) requiere exactamente 10 vértices perimetrales cerrados para no corromper el renderizado de OpenGL.
+
+---
 
 ### 4. Paisaje de Fondo (`# 4. PAISAJE DE FONDO`)
-Dibuja el escenario japonés detrás del área de juego.
-* **`fondo_paisaje`:** Se ubica al fondo en el eje Z (`position=(0, 0, 10)`) para no tapar nunca los postes ni los discos. Superpone capas de cielo de atardecer, sol, montañas lejanas/medias, una pagoda de 5 pisos, un lago con reflejos, colinas y ramas de cerezo (`crear_flor_sakura`).
-* **`petalos_sakura`:** Instancia 22 pétalos con tamaños, velocidades (`vel_x`, `vel_y`) y fases aleatorias para animar su caída constante.
-* **Contenedores de Vistas (`menu_principal_ui`, `menu_estrellas_ui`, `menu_ayuda_ui`, `juego_ui`, `mundo_juego_2d`):** Agrupan los elementos de cada pantalla. Para cambiar de vista, simplemente se activa `.enabled = True` en la pantalla deseada y `.enabled = False` en las demás.
+**¿En qué consiste?**
+* Dibuja en el fondo (`z = 10`) el cielo, el sol, las montañas, la pagoda de 5 pisos, el lago con reflejos y las ramas de cerezo.
+* Crea la lista `petalos_sakura` con 22 pétalos animados y declara los 5 contenedores de pantallas (`menu_principal_ui`, `menu_estrellas_ui`, `menu_ayuda_ui`, `juego_ui`, `mundo_juego_2d`).
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Aumentar o disminuir la cantidad de pétalos cayendo:**
+  Busca `for _ in range(22):` y cambia `22` por `50` (lluvia intensa de pétalos) o `5` (pocos pétalos).
+* **Hacer que los pétalos caigan más rápido:**
+  Dentro de ese mismo ciclo, modifica `pet.vel_y = random.uniform(0.025, 0.055)` a valores mayores como `random.uniform(0.08, 0.15)`.
+* **Cambiar la cantidad de pisos de la pagoda del fondo:**
+  Busca `for piso in range(5):` y cámbialo a `range(3)` o `range(7)`.
+* **⚠️ Qué NO tocar para evitar colapsos:** **Nunca** agregues `parent=camera.ui` a `fondo_paisaje`. Debe quedarse en el mundo general con `position=(0, 0, 10)` para mantenerse detrás de las torres.
+
+---
 
 ### 5. Pantalla 1: Menú Principal (`# 5. PANTALLA 1: MENÚ PRINCIPAL`)
-Construye la portada del juego:
-* **Banner superior:** Muestra el título `"Torre de Hanoi"` acompañado de una miniatura decorativa de las torres.
-* **Columna izquierda:** Contiene los 5 botones principales (*Iniciar Juego, selector de Dificultad con flechas laterales, Mis Estrellas, Cómo Jugar y Salir*).
-* **Panel derecho (`botones_circulares_menu`):** Genera una cuadrícula con los 15 niveles (5 por dificultad). La función `actualizar_selector_menu()` resalta en amarillo el nivel activo y en dorado los niveles que ya tienen estrellas ganadas.
+**¿En qué consiste?**
+* Construye la pantalla inicial: el banner superior con el título y la miniatura de Hanoi, los 5 botones izquierdos (*Iniciar Juego, Dificultad, Mis Estrellas, Cómo Jugar, Salir*) y el panel derecho con los 15 botones circulares para elegir nivel directamente.
+* Incluye `actualizar_selector_menu()` y `cambiar_dificultad(delta)`.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar el título o subtítulo del menú:**
+  Busca las líneas `Text(parent=menu_principal_ui, text="Torre de Hanoi"...` y `text="Ordena los discos, alcanza la cima"` y edita el string `text="..."`.
+* **Cambiar el texto o color de un botón del menú:**
+  En `btn_iniciar = crear_boton_pildora_menu(...)`, puedes cambiar `"Iniciar Juego"` por `"Jugar Ahora"` o cambiar `col_prin=BTN_AMARILLO` por `BTN_VERDE`.
+* **⚠️ Qué NO tocar para evitar colapsos:** En la función `seleccionar_nivel_circular(d_i=idx_d, niv=n):`, no borres los parámetros por defecto `d_i=idx_d, niv=n`, ya que en Python son necesarios para capturar el valor correcto dentro de un ciclo `for` (*late binding closure*).
+
+---
 
 ### 6. Pantalla 2: Tus Estrellas (`# 6. PANTALLA 2: TUS ESTRELLAS`)
-Muestra el historial de calificaciones del jugador:
-* Presenta un contador global (`0 / 45`) y 3 columnas correspondientes a *Fácil, Medio y Difícil*.
-* **`actualizar_vista_estrellas()`:** Recorre el diccionario `estrellas_progreso`, suma el puntaje de cada dificultad (`0 / 15`) y enciende en color dorado las estrellas obtenidas en cada nivel.
+**¿En qué consiste?**
+* Dibuja la galería de trofeos donde se ven las 3 columnas (*Fácil, Medio, Difícil*), el puntaje acumulado por dificultad (`0 / 15`) y el total general (`0 / 45`).
+* La función `actualizar_vista_estrellas()` suma los puntos de `estrellas_progreso` y enciende las estrellas doradas correspondientes.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar los textos o encabezados de la pantalla de estrellas:**
+  Edita el texto en `Text(parent=menu_estrellas_ui, text="Tus Estrellas"...` o el mensaje motivacional `"¡Sigue jugando para obtener más estrellas!"`.
+* **⚠️ Qué NO tocar para evitar colapsos:** No modifiques la estructura de la tupla `ui_columnas_estrellas[nom_dif] = (lbl_sub_col, filas_estrellas_col)`, porque `actualizar_vista_estrellas()` la desempaqueta directamente al ganar cada partida.
+
+---
 
 ### 7. Pantalla 3: Cómo Jugar (`# 7. PANTALLA 3: CÓMO JUGAR`)
-Despliega un panel informativo con las 4 instrucciones clave (cómo levantar discos con clic izquierdo, el significado del holograma verde/rojo, la regla de oro de no poner un disco grande sobre uno pequeño y cómo obtener las 3 estrellas).
+**¿En qué consiste?**
+* Crea la ventana de instrucciones con las 4 reglas del juego y el botón `"Volver al Menú"`.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Agregar tu nombre de autor, carnet o una regla nueva en pantalla:**
+  Solo edita el bloque de texto dentro de `Text(parent=menu_ayuda_ui, text=(...))` agregando una línea nueva con `\n` al final.
+
+---
 
 ### 8. Escenario de Juego 2.5D y HUD (`# 8. ESCENARIO DE JUEGO 2.5D Y HUD`)
-Construye el tablero interactivo donde se desarrolla la partida:
-* **Base y Postes:** Dibuja la plataforma de madera y coloca los 3 postes en las posiciones `posiciones_x = [-4.3, 0.0, 4.3]` con sus etiquetas (`Torre A`, `Torre B`, `Torre C`).
-* **Hologramas (`hologramas_postes`):** Crea una silueta translúcida en cada poste que permanece oculta hasta que el jugador arrastra un disco sobre esa torre.
-* **HUD Superior e Inferior:** Muestra en tiempo real la dificultad y nivel actual, el `temporizador` (`00:00`), el contador de `movimientos`, las 3 estrellas encendidas/apagadas según el rendimiento, la meta óptima de movimientos y los botones de *Menú*, *Reiniciar* y *Siguiente Nivel*.
+**¿En qué consiste?**
+* Construye la mesa de madera, genera con un ciclo `for` los 3 postes (`Torre A`, `Torre B`, `Torre C`), crea los `hologramas_postes` (indicadores verde/rojo) y arma la barra superior (HUD) con el nivel, cronómetro, movimientos, estrellas en vivo y meta.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar el nombre de las torres (ej. "Origen", "Auxiliar", "Destino"):**
+  Busca la lista `etiquetas_torres` y cámbiala:
+  ```python
+  etiquetas_torres = ["Origen", "Auxiliar", "Destino"]
+  ```
+* **Hacer los postes más altos o más gruesos:**
+  Modifica `ALTURA_POSTE = 3.85` o `ANCHO_POSTE = 0.54`.
+* **⚠️ Qué NO tocar para evitar colapsos:** No elimines `hologramas_postes.append(ghost)` dentro del ciclo `for`, ya que el sistema de arrastrar y soltar busca exactamente 3 hologramas (índices 0, 1 y 2).
+
+---
 
 ### 9. Lógica de Juego, Discos y Arrastrar y Soltar (`# 9. LÓGICA DE JUEGO...`)
-Contiene los algoritmos centrales del problema de la Torre de Hanoi:
-* **`calcular_estrellas_actuales()`:** Calcula el mínimo matemático de movimientos mediante la fórmula **`mov_optimos = (2 ** NUM_DISCOS) - 1`**. Otorga **3 estrellas** si el jugador resuelve el nivel dentro de un margen cercano al óptimo (`lim_3`), **2 estrellas** dentro del límite intermedio (`lim_2`) y **1 estrella** si realiza más movimientos.
-* **`construir_nivel()`:**
-  1. Destruye las entidades gráficas del nivel previo (`destroy(d)`) y vacía las 3 pilas (`t.clear()`).
-  2. Obtiene la cantidad de discos del nivel actual (`NUM_DISCOS`) y reinicia movimientos y reloj a cero.
-  3. Mediante un ciclo `for`, instancia los discos de mayor a menor tamaño (`disco.valor`), les asigna su color y los apila inicialmente en la **Torre A** (`torres[0].append(disco)`).
-* **`verificar_victoria()`:** Comprueba si la **Torre C** ya contiene todos los discos del nivel (`if len(torres[2]) == NUM_DISCOS:`). Al cumplirse, detiene el cronómetro, guarda el récord de estrellas, ejecuta `lanzar_fuegos_artificiales()` y habilita el botón *Siguiente Nivel*.
+**¿En qué consiste?**
+* Es el corazón matemático y algorítmico del juego:
+  * `calcular_estrellas_actuales()`: Usa la fórmula óptima **`(2 ** NUM_DISCOS) - 1`** para decidir si mereces 3, 2 o 1 estrella según tus movimientos.
+  * `construir_nivel()`: Destruye los discos anteriores, crea los nuevos de mayor a menor y los apila en `torres[0]` (Torre A).
+  * `verificar_victoria()`: Revisa si todos los discos llegaron a la Torre C (`len(torres[2]) == NUM_DISCOS`).
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Hacer que solo den 3 estrellas si el jugador hace el mínimo exacto de movimientos (0 errores):**
+  En `calcular_estrellas_actuales()`, cambia `lim_3`:
+  ```python
+  def calcular_estrellas_actuales():
+      mov_optimos = (2 ** NUM_DISCOS) - 1
+      lim_3 = mov_optimos       # Antes daba margen extra; así exige perfección absoluta
+      lim_2 = mov_optimos + 5   # 2 estrellas si se pasa por máximo 5 movimientos
+  ```
+* **Cambiar la torre donde se gana el juego (ej. ganar en la Torre B en vez de la Torre C):**
+  En `verificar_victoria()`, cambia el índice `2` por `1`:
+  ```python
+  if len(torres[1]) == NUM_DISCOS:  # 0 = Torre A, 1 = Torre B, 2 = Torre C
+  ```
+* **Hacer que los discos empiecen en otra torre (ej. empezar en la Torre B):**
+  En `construir_nivel()`, cambia `posiciones_x[0]` por `posiciones_x[1]` y `torres[0].append(disco)` por `torres[1].append(disco)`.
+* **Mostrar el número de tamaño encima de cada disco:**
+  Dentro del ciclo `for i in range(NUM_DISCOS):` de `construir_nivel()`, puedes agregar al final:
+  ```python
+  Text(parent=disco, text=str(tam_val), position=(0, 0, -0.05), origin=(0, 0), scale=8, color=color.white)
+  ```
+* **⚠️ Qué NO tocar para evitar colapsos:** En `construir_nivel()`, **jamás borres** el ciclo `for d in todos_discos: destroy(d)`. Si solo haces `todos_discos.clear()` sin `destroy(d)`, los discos del nivel anterior se quedarán dibujados en pantalla para siempre.
+
+---
 
 ### 10. Navegación entre Pantallas y Control del Mouse (`# 10. NAVEGACIÓN...`)
-Gestiona el cambio de menús y las operaciones de las pilas con el mouse:
-* **`obtener_torre_cercana(mx)`:** Calcula la distancia horizontal entre el disco arrastrado y las 3 torres para detectar sobre cuál poste se encuentra el cursor.
-* **`input(key)`:**
-  * **Al presionar clic izquierdo (`"left mouse down"`):** Inspecciona **únicamente el último elemento de cada pila (`disco_sup = t[-1]`)**. Si el clic cae dentro del área de ese disco superior, permite levantarlo e inicia el cronómetro. (Esto garantiza la regla LIFO: nunca se puede tomar un disco que tenga otros encima).
-  * **Al soltar el clic izquierdo (`"left mouse up"`):** Evalúa si la torre destino cumple la regla de Hanoi:
-    ```python
-    if len(torre_dest) == 0 or torre_dest[-1].valor > disco_arrastrado.valor:
-    ```
-    * **Movimiento válido:** Desapila el disco de la torre de origen con `torres[torre_origen_arrastre].pop()`, lo apila en la torre destino con `torres[idx_destino].append(disco_arrastrado)`, incrementa `movimientos += 1`, genera una onda de choque (`crear_onda_choque`) y llama a `verificar_victoria()`.
-    * **Movimiento inválido:** Regresa suavemente el disco a su torre de origen y muestra una alerta en rojo.
+**¿En qué consiste?**
+* Conecta los botones con las funciones de cambio de pantalla y gestiona el evento `input(key)` del mouse:
+  * Con `"left mouse down"`: toma únicamente el disco en la cima de la pila (`t[-1]`).
+  * Con `"left mouse up"`: verifica la **Regla de Oro de Hanoi** (`len(torre_dest) == 0 or torre_dest[-1].valor > disco_arrastrado.valor`). Si se cumple, hace `.pop()` en la torre origen y `.append()` en la torre destino.
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Permitir una "trampa" de prueba (poder poner discos grandes sobre pequeños):**
+  Si el profesor te pide demostrar qué pasa si se desactiva la regla de Hanoi, en `input(key)` busca:
+  ```python
+  if len(torre_dest) == 0 or torre_dest[-1].valor > disco_arrastrado.valor:
+  ```
+  Y cámbialo temporalmente por:
+  ```python
+  if True:  # Acepta cualquier disco sin importar el tamaño
+  ```
+* **Agregar una tecla rápida en el teclado (ej. presionar `"r"` para reiniciar el nivel):**
+  Al inicio de `def input(key):`, puedes agregar:
+  ```python
+  if key == "r" and mundo_juego_2d.enabled:
+      construir_nivel()
+  ```
+* **⚠️ Qué NO tocar para evitar colapsos:** Nunca quites la validación `if len(t) > 0:` antes de consultar `disco_sup = t[-1]`. Intentar leer `t[-1]` en una torre vacía detendrá el programa inmediatamente con un `IndexError`.
+
+---
 
 ### 11. Bucle Principal de Animación (`# 11. BUCLE PRINCIPAL DE ANIMACIÓN`)
-La función **`update()`** se ejecuta automáticamente en cada fotograma (`time.dt`):
-1. **Animación de Sakura:** Desplaza los pétalos hacia abajo y aplica una onda senoidal (`math.sin`) en X para simular el balanceo del viento; cuando un pétalo sale por abajo (`y < -0.52`), reaparece arriba.
-2. **Cronómetro en vivo:** Suma `time.dt` a la variable `tiempo` mientras la partida está activa y actualiza el texto en formato `MM:SS`.
-3. **Seguimiento del Mouse y Hologramas:** Actualiza la posición `(x, y)` del disco arrastrado y proyecta en la torre más cercana el holograma en color **verde** (si `es_valido` es verdadero) o **rojo** (si es inválido).
-4. **Interpolación Lineal (`lerp`):** Desliza suavemente todos los discos hacia su coordenada objetivo (`d.position = lerp(d.position, d.target_pos, time.dt * 14)`).
-5. **Limpieza de Partículas:** Expande y desvanece las ondas de choque y aplica gravedad a las estrellas de los fuegos artificiales, destruyendo las entidades (`destroy()`) cuando termina su tiempo de vida.
+**¿En qué consiste?**
+* La función `update()` se ejecuta cada fotograma (~60 veces por segundo). Mueve los pétalos de Sakura, suma segundos al cronómetro, actualiza la posición del holograma verde/rojo mientras arrastras un disco, suaviza el movimiento de los discos con `lerp()` y anima las partículas (ondas de choque y fuegos artificiales).
+
+**🔧 ¿Cómo modificar este apartado si lo piden?**
+* **Cambiar la velocidad con la que los discos se deslizan hacia el poste al soltarlos:**
+  Busca la línea:
+  ```python
+  d.position = lerp(d.position, d.target_pos, time.dt * 14)
+  ```
+  Cambia `14` por `30` para que se acomoden casi instantáneamente, o por `5` para un efecto en cámara lenta.
+* **Poner un límite de tiempo (ej. perder o reiniciar si pasa de 60 segundos):**
+  Dentro de `if cronometro_activo and not juego_terminado:`, después de `tiempo += time.dt`, puedes agregar:
+  ```python
+  if tiempo >= 60.0:
+      mensaje.text = "¡Se acabó el tiempo! Reiniciando..."
+      construir_nivel()
+  ```
+* **⚠️ Qué NO tocar para evitar colapsos:** En los ciclos `for onda in ondas_choque[:]:` y `for p in particulas_efecto[:]:`, **nunca borres los corchetes `[:]`**. Esos corchetes crean una copia de la lista para poder eliminar partículas con `.remove()` sin corromper el ciclo `for` en plena ejecución. Tampoco borres `app.run()` al final del archivo.
 
 ---
 
-## 🔧 ¿Qué modificar en caso de que lo pidan? (Guía de Cambios Rápidos)
-
-Si durante una revisión o defensa te piden cambiar el comportamiento del juego, busca estas líneas exactas:
-
-| ¿Qué te piden cambiar? | Dónde está en el código | Qué valor debes modificar |
-| :--- | :--- | :--- |
-| **Cantidad de discos en los niveles** | Diccionario `config_discos` *(Sección 2)* | Cambia los números dentro de las listas `[3, 3, 4, 4, 5]`. Se recomienda usar valores entre `2` y `8`. |
-| **Colores de los discos** | Lista `COLORES_DISCOS` *(Sección 1)* | Edita los números dentro de `c_rgb(R, G, B)` o agrega más colores a la lista. |
-| **Exigir movimientos exactos ($2^n - 1$) para 3 estrellas** | Función `calcular_estrellas_actuales()` *(Sección 9)* | Cambia `lim_3 = max(...)` por `lim_3 = mov_optimos`. Así solo dará 3 estrellas si no se comete ningún error. |
-| **Cambiar la torre ganadora (ej. ganar en la Torre B)** | Función `verificar_victoria()` *(Sección 9)* | Cambia `if len(torres[2]) == NUM_DISCOS:` por `if len(torres[1]) == NUM_DISCOS:` (`0` = Torre A, `1` = Torre B, `2` = Torre C). |
-| **Velocidad con la que se acomodan los discos** | Función `update()` *(Sección 11)* | En `lerp(d.position, d.target_pos, time.dt * 14)`, sube `14` a `25` para que sea más rápido, o bájalo a `6` para que sea lento. |
-| **Cantidad o velocidad de los pétalos Sakura** | Bucle `for _ in range(22):` *(Sección 4)* | Cambia `22` por la cantidad de pétalos deseada, o sube los valores de `pet.vel_y` para que caigan más rápido. |
-
----
-
-## ⚠️ Cómo evitar que el código colapse al modificarlo (Reglas de Seguridad)
-
-Para asegurarte de que el programa **nunca se cierre con errores (`Crash` / `IndexError`)** ni se dañe visualmente al editarlo, respeta siempre estas 5 reglas:
-
-1. **Sincronía entre `config_discos` y `estrellas_progreso`:**
-   Cada dificultad en `config_discos` tiene **5 niveles** (5 números) y en `estrellas_progreso` tiene **5 ceros** (`[0, 0, 0, 0, 0]`). Si agregas o quitas un nivel en uno, debes hacer exactamente lo mismo en el otro; de lo contrario, el programa colapsará con un `IndexError: list index out of range`.
-2. **Límite visual de discos por poste (`Máximo recomendado: 8`):**
-   El grosor de cada disco es `ALTO_DISCO = 0.44` y la altura del poste es `ALTURA_POSTE = 3.85`. Si configuras un nivel con 10 o más discos, la pila rebasará el tope del poste y se meterá dentro del marcador superior. Si te piden poner 10 discos, reduce también `ALTO_DISCO = 0.32`.
-3. **Nunca pongas `fondo_paisaje` dentro de `camera.ui`:**
-   El paisaje de fondo (`fondo_paisaje`) está en el mundo 2D con profundidad `z = 10` (detrás de las torres). Si le agregas `parent=camera.ui`, pasará a la capa frontal de interfaz y tapará por completo los postes y los discos.
-4. **No borrar el bucle `destroy(d)` en `construir_nivel()`:**
-   Antes de hacer `todos_discos.clear()`, el código ejecuta `for d in todos_discos: destroy(d)`. Si borras el `destroy(d)`, los discos viejos no se eliminarán de la tarjeta gráfica y quedarán congelados en pantalla encimándose con los discos nuevos.
-5. **Mantener siempre los corchetes `[:]` en los bucles de partículas:**
-   En `update()`, las ondas y fuegos artificiales se recorren con `for onda in ondas_choque[:]:` y `for p in particulas_efecto[:]:`. El `[:]` crea una copia temporal de la lista para poder borrar elementos con `.remove()` de forma segura mientras el ciclo está corriendo.
-
----
-
-## 👤 Autor
-
-* **Juan René Flores Hernández** ([@Juanh3rn4nd3z](https://github.com/Juanh3rn4nd3z))
-* **Carrera:** Ingeniería en Desarrollo de Software — Universidad de Oriente (UNIVO)
-
+#
